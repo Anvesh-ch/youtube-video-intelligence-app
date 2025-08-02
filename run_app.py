@@ -16,16 +16,16 @@ def check_setup():
     # Check if models directory exists and has files
     models_dir = 'models'
     if not os.path.exists(models_dir):
-        print("❌ Models directory not found. Run setup.py first.")
+        print("Models directory not found. Run setup.py first.")
         return False
     
     # Check if .env file exists
     env_file = '.env'
     if not os.path.exists(env_file):
-        print("❌ .env file not found. Run setup.py first.")
+        print(".env file not found. Run setup.py first.")
         return False
     
-    print("✅ Setup looks good!")
+    print("Setup looks good!")
     return True
 
 def run_streamlit():
@@ -44,23 +44,23 @@ def run_streamlit():
         time.sleep(3)
         
         # Open browser
-        print("🌐 Opening browser...")
+        print("Opening browser...")
         webbrowser.open('http://localhost:8501')
         
-        print("🚀 App is running!")
-        print("📱 Open your browser and go to: http://localhost:8501")
-        print("⏹️  Press Ctrl+C to stop the app")
+        print("App is running!")
+        print("Open your browser and go to: http://localhost:8501")
+        print("Press Ctrl+C to stop the app")
         
         # Wait for the process to complete
         process.wait()
         
     except KeyboardInterrupt:
-        print("\n🛑 Stopping app...")
+        print("\nStopping app...")
         if 'process' in locals():
             process.terminate()
-        print("✅ App stopped.")
+        print("App stopped.")
     except Exception as e:
-        print(f"❌ Error running app: {e}")
+        print(f"Error running app: {e}")
         return False
     
     return True

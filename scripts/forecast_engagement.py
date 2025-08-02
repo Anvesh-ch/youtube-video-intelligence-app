@@ -40,11 +40,21 @@ class EngagementForecaster:
             # Extract labels
             views_labels.append(video_data.get('views', 0))
             likes_labels.append(video_data.get('likes', 0))
-            comments_labels.append(video_data.get('comments', 0))
+            comments_labels.append(video_data.get('comment_count', video_data.get('comments', 0)))
         
         # Convert to DataFrame
         features_df = pd.DataFrame(features_list)
         self.feature_columns = features_df.columns.tolist()
+        
+        # Remove rows with NaN values
+        valid_indices = ~(features_df.isna().any(axis=1) | 
+                         pd.isna(views_labels) | 
+                         pd.isna(likes_labels) | 
+                         pd.isna(comments_labels))
+        features_df = features_df[valid_indices]
+        views_labels = [views_labels[i] for i in range(len(views_labels)) if valid_indices[i]]
+        likes_labels = [likes_labels[i] for i in range(len(likes_labels)) if valid_indices[i]]
+        comments_labels = [comments_labels[i] for i in range(len(comments_labels)) if valid_indices[i]]
         
         # Split data
         X_train, X_test, y_views_train, y_views_test = train_test_split(

@@ -14,93 +14,40 @@ from scripts.forecast_engagement import EngagementForecaster
 from scripts.recommend_tags import TagRecommender
 from utils.constants import MODEL_PATHS
 
-def generate_sample_data(n_samples=1000):
+def load_real_data():
     """
-    Generate sample data for training models.
+    Load the real YouTube dataset.
     
-    Args:
-        n_samples (int): Number of samples to generate
-        
     Returns:
-        pd.DataFrame: Sample data
+        pd.DataFrame: Real YouTube data
     """
-    np.random.seed(42)
-    random.seed(42)
+    data_file = 'data/processed_youtube_data.csv'
     
-    # Sample titles
-    titles = [
-        "Amazing Life Hacks You Need to Know",
-        "10 Incredible Facts About Space",
-        "How to Make the Perfect Pizza",
-        "The Most Shocking Moments in History",
-        "Tutorial: Learn Python in 10 Minutes",
-        "Viral Dance Challenge Compilation",
-        "Cooking with Gordon Ramsay",
-        "Top 10 Gaming Moments of 2023",
-        "Science Experiments You Can Do at Home",
-        "Travel Vlog: Exploring Japan"
-    ]
+    if not os.path.exists(data_file):
+        print("Processed data not found. Loading and preprocessing real data...")
+        from scripts.load_real_data import create_training_dataset
+        data = create_training_dataset()
+    else:
+        print("Loading processed YouTube data...")
+        data = pd.read_csv(data_file)
     
-    # Sample categories
-    categories = [
-        "Entertainment", "Education", "Gaming", "Howto & Style",
-        "Science & Technology", "Music", "Comedy", "News & Politics"
-    ]
+    if data is None or len(data) == 0:
+        print("No data available. Please check the archive folder.")
+        return None
     
-    # Sample channels
-    channels = [
-        "TechChannel", "CookingMaster", "GamingPro", "ScienceExplained",
-        "TravelVlogger", "ComedyCentral", "NewsNetwork", "MusicChannel"
-    ]
-    
-    # Generate data
-    data = []
-    for i in range(n_samples):
-        # Random selection
-        title = random.choice(titles) + f" #{i}"
-        category = random.choice(categories)
-        channel = random.choice(channels)
-        
-        # Generate realistic metrics
-        views = np.random.lognormal(10, 1.5)  # Log-normal distribution
-        likes = views * np.random.beta(2, 8)  # Beta distribution for like ratio
-        comments = views * np.random.beta(1, 20)  # Beta distribution for comment ratio
-        
-        # Generate tags
-        tag_options = ["tutorial", "viral", "amazing", "incredible", "shocking", 
-                      "tutorial", "howto", "tips", "tricks", "guide", "review",
-                      "compilation", "best", "top", "ultimate", "complete"]
-        tags = random.sample(tag_options, random.randint(3, 8))
-        
-        # Generate description
-        description = f"This is a sample description for {title}. " + \
-                     "This video contains amazing content that you won't want to miss. " + \
-                     "Subscribe for more content like this!"
-        
-        # Generate publish time
-        publish_time = datetime.now() - timedelta(days=random.randint(1, 365))
-        
-        data.append({
-            'title': title,
-            'description': description,
-            'channel_title': channel,
-            'category': category,
-            'tags': tags,
-            'views': int(views),
-            'likes': int(likes),
-            'comments': int(comments),
-            'publish_time': publish_time.isoformat(),
-            'video_id': f"sample_{i}"
-        })
-    
-    return pd.DataFrame(data)
+    print(f"Loaded {len(data)} real YouTube videos")
+    return data
 
 def train_all_models():
     """
-    Train all ML models using sample data.
+    Train all ML models using real YouTube data.
     """
-    print("Generating sample data...")
-    data = generate_sample_data(1000)
+    print("Loading real YouTube dataset...")
+    data = load_real_data()
+    
+    if data is None:
+        print("Failed to load data. Cannot train models.")
+        return False
     
     # Create models directory if it doesn't exist
     os.makedirs('models', exist_ok=True)
@@ -127,25 +74,32 @@ def train_all_models():
     
     print("All models trained successfully!")
     print(f"Models saved to: {os.path.abspath('models/')}")
+    return True
 
 def test_models():
     """
-    Test the trained models with sample data.
+    Test the trained models with real YouTube data.
     """
     print("Testing trained models...")
     
-    # Sample video data
-    sample_video = {
-        'title': 'Amazing Life Hacks You Need to Know',
-        'description': 'This video contains incredible life hacks that will change your life forever.',
-        'channel_title': 'LifeHacksChannel',
-        'category': 'Howto & Style',
-        'tags': ['lifehacks', 'tips', 'tricks', 'amazing'],
-        'views': 50000,
-        'likes': 2500,
-        'comments': 150,
-        'publish_time': '2023-12-01T10:00:00Z'
-    }
+    # Sample video data from real dataset
+    data_file = 'data/processed_youtube_data.csv'
+    if os.path.exists(data_file):
+        data = pd.read_csv(data_file)
+        sample_video = data.iloc[0].to_dict()
+    else:
+        # Fallback sample data
+        sample_video = {
+            'title': 'Amazing Life Hacks You Need to Know',
+            'description': 'This video contains incredible life hacks that will change your life forever.',
+            'channel_title': 'LifeHacksChannel',
+            'category_name': 'Howto & Style',
+            'tags_list': ['lifehacks', 'tips', 'tricks', 'amazing'],
+            'views': 50000,
+            'likes': 2500,
+            'comment_count': 150,
+            'publish_time': '2023-12-01T10:00:00Z'
+        }
     
     # Test virality prediction
     from scripts.predict_virality import predict_virality
@@ -176,9 +130,13 @@ if __name__ == "__main__":
     print("YouTube Video Intelligence App - Model Training")
     print("=" * 50)
     
-    train_all_models()
-    print("\n" + "=" * 50)
-    test_models()
+    success = train_all_models()
     
-    print("\nTraining completed successfully!")
-    print("You can now run the Streamlit app with: streamlit run app/app.py") 
+    if success:
+        print("\n" + "=" * 50)
+        test_models()
+        
+        print("\nTraining completed successfully!")
+        print("You can now run the Streamlit app with: streamlit run app/app.py")
+    else:
+        print("\nTraining failed. Please check the data and try again.") 

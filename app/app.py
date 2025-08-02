@@ -19,7 +19,7 @@ from scripts.summarize_description import summarize_description
 # Page configuration
 st.set_page_config(
     page_title="YouTube Video Intelligence App",
-    page_icon="📊",
+    page_icon="",
     layout="wide",
     initial_sidebar_state="expanded"
 )

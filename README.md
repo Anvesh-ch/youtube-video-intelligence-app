@@ -21,24 +21,72 @@ A comprehensive machine learning application that analyzes YouTube videos to pro
 
 ## Installation
 
+### Option 1: Automated Setup (Recommended)
+
 1. Clone the repository:
 ```bash
 git clone <repository-url>
 cd YouTube_Video_Intelligence_App
 ```
 
-2. Install dependencies:
+2. Run the automated setup script:
+```bash
+python setup_venv.py
+```
+
+This will:
+- Create a virtual environment
+- Install all dependencies
+- Create activation scripts
+- Set up everything automatically
+
+3. Activate the environment and run:
+```bash
+# Unix/Linux/macOS
+source activate_env.sh
+# or
+./run_app_venv.sh
+
+# Windows
+activate_env.bat
+# or
+run_app_venv.bat
+```
+
+### Option 2: Manual Setup
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd YouTube_Video_Intelligence_App
+```
+
+2. Create virtual environment:
+```bash
+python -m venv venv
+```
+
+3. Activate virtual environment:
+```bash
+# Unix/Linux/macOS
+source venv/bin/activate
+
+# Windows
+venv\Scripts\activate.bat
+```
+
+4. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Set up environment variables:
+5. Set up environment variables:
 ```bash
-cp .env.example .env
+cp env.example .env
 # Add your YouTube API key to .env
 ```
 
-4. Run the application:
+6. Run the application:
 ```bash
 streamlit run app/app.py
 ```
@@ -78,7 +126,7 @@ project_root/
 
 ## Model Training
 
-Models are pre-trained using the YouTube Trending Video Dataset from Kaggle and stored locally in the `/models/` directory.
+Models are trained using the real YouTube Trending Video Dataset from the archive folder. The dataset contains over 400,000 videos from 10 countries (US, GB, CA, DE, FR, IN, JP, KR, MX, RU) with real engagement metrics, titles, descriptions, and tags.
 
 ## Deployment
 

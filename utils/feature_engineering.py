@@ -153,7 +153,7 @@ def create_engagement_features(video_data):
     # Basic engagement metrics
     views = video_data.get('views', 0)
     likes = video_data.get('likes', 0)
-    comments = video_data.get('comments', 0)
+    comments = video_data.get('comment_count', video_data.get('comments', 0))
     
     features.update({
         'views': views,
@@ -181,7 +181,9 @@ def create_engagement_features(video_data):
     })
     
     # Tag features
-    tags = video_data.get('tags', [])
+    tags = video_data.get('tags_list', video_data.get('tags', []))
+    if isinstance(tags, str):
+        tags = [tag.strip() for tag in tags.split('|') if tag.strip()]
     features['tag_count'] = len(process_tags(tags))
     
     # Time features
@@ -209,6 +211,9 @@ def create_virality_features(video_data):
     
     # Add virality-specific features
     title = video_data.get('title', '')
+    if pd.isna(title) or str(title) == 'nan':
+        title = ''
+    
     features.update({
         'has_viral_keywords': any(keyword in title.lower() for keyword in 
                                  ['viral', 'trending', 'shocking', 'amazing', 'incredible']),

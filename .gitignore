@@ -33,6 +33,11 @@ ENV/
 env.bak/
 venv.bak/
 
+# Keep venv activation scripts but exclude the actual environment
+!venv/bin/activate
+!venv/bin/activate.csh
+!venv/bin/activate.fish
+
 # IDE
 .vscode/
 .idea/
@@ -70,4 +75,8 @@ mlruns/
 .ipynb_checkpoints
 
 # Streamlit
-.streamlit/secrets.toml 
+.streamlit/secrets.toml
+
+# Archive files
+archive/
+archive.zip 

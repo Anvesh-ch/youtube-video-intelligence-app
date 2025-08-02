@@ -27,7 +27,9 @@ class TagRecommender:
         # Collect all unique tags
         all_tags = set()
         for _, row in data.iterrows():
-            tags = row.get('tags', [])
+            tags = row.get('tags_list', row.get('tags', []))
+            if isinstance(tags, str):
+                tags = [tag.strip() for tag in tags.split('|') if tag.strip()]
             if isinstance(tags, list):
                 processed_tags = process_tags(tags)
                 all_tags.update(processed_tags)

@@ -22,10 +22,10 @@ def check_dependencies():
     for package in required_packages:
         try:
             __import__(package.replace('-', '_'))
-            print(f"✓ {package}")
+            print(f"OK {package}")
         except ImportError:
             missing_packages.append(package)
-            print(f"✗ {package} (missing)")
+            print(f"Missing {package}")
     
     if missing_packages:
         print(f"\nMissing packages: {', '.join(missing_packages)}")
@@ -43,7 +43,7 @@ def create_directories():
     
     for directory in directories:
         os.makedirs(directory, exist_ok=True)
-        print(f"✓ Created {directory}/")
+        print(f"Created {directory}/")
     
     return True
 
@@ -52,20 +52,31 @@ def train_models():
     print("Training ML models...")
     
     try:
-        # Run the training script
+        # First load and preprocess real data
+        print("Loading and preprocessing real YouTube data...")
+        result = subprocess.run([
+            sys.executable, 'scripts/load_real_data.py'
+        ], capture_output=True, text=True)
+        
+        if result.returncode != 0:
+            print(f"Data loading failed: {result.stderr}")
+            return False
+        
+        # Then train the models
+        print("Training models on real data...")
         result = subprocess.run([
             sys.executable, 'scripts/train_models.py'
         ], capture_output=True, text=True)
         
         if result.returncode == 0:
-            print("✓ Models trained successfully!")
+            print("Models trained successfully!")
             return True
         else:
-            print(f"✗ Model training failed: {result.stderr}")
+            print(f"Model training failed: {result.stderr}")
             return False
             
     except Exception as e:
-        print(f"✗ Error training models: {e}")
+        print(f"Error training models: {e}")
         return False
 
 def create_env_file():
@@ -76,12 +87,12 @@ def create_env_file():
     if not os.path.exists(env_file) and os.path.exists(env_example):
         print("Creating .env file from template...")
         shutil.copy(env_example, env_file)
-        print("✓ Created .env file")
-        print("⚠️  Please edit .env file and add your YouTube API key")
+        print("Created .env file")
+        print("Please edit .env file and add your YouTube API key")
     elif os.path.exists(env_file):
-        print("✓ .env file already exists")
+        print(".env file already exists")
     else:
-        print("⚠️  No .env template found")
+        print("No .env template found")
 
 def main():
     """Main setup function."""

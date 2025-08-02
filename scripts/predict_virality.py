@@ -35,11 +35,20 @@ class ViralityPredictor:
             
             # Create binary label based on views threshold
             views = video_data.get('views', 0)
-            labels.append(1 if views >= VIRALITY_THRESHOLD else 0)
+            # Use is_viral if available, otherwise calculate
+            if 'is_viral' in video_data:
+                labels.append(video_data['is_viral'])
+            else:
+                labels.append(1 if views >= VIRALITY_THRESHOLD else 0)
         
         # Convert to DataFrame
         features_df = pd.DataFrame(features_list)
         self.feature_columns = features_df.columns.tolist()
+        
+        # Remove rows with NaN values
+        valid_indices = ~(features_df.isna().any(axis=1) | pd.isna(labels))
+        features_df = features_df[valid_indices]
+        labels = [labels[i] for i in range(len(labels)) if valid_indices[i]]
         
         # Split data
         X_train, X_test, y_train, y_test = train_test_split(

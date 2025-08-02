@@ -1,6 +1,7 @@
 import re
 import string
 import nltk
+import pandas as pd
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from textblob import TextBlob
@@ -72,7 +73,7 @@ def extract_title_features(title):
     Returns:
         dict: Dictionary of title features
     """
-    if not title:
+    if not title or pd.isna(title) or str(title) == 'nan':
         return {
             'title_length': 0,
             'word_count': 0,
@@ -106,7 +107,7 @@ def extract_description_features(description):
     Returns:
         dict: Dictionary of description features
     """
-    if not description:
+    if not description or pd.isna(description) or str(description) == 'nan':
         return {
             'description_length': 0,
             'word_count': 0,
@@ -136,7 +137,15 @@ def process_tags(tags):
     Returns:
         list: Cleaned tags list
     """
-    if not tags:
+    if not tags or pd.isna(tags) or str(tags) == 'nan':
+        return []
+    
+    # Handle case where tags is a string
+    if isinstance(tags, str):
+        tags = [tag.strip() for tag in tags.split('|') if tag.strip()]
+    
+    # Handle case where tags is not a list
+    if not isinstance(tags, list):
         return []
     
     cleaned_tags = []
